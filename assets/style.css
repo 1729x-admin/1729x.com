@@ -447,3 +447,5 @@ a.index-item:hover .arrow { background: var(--saffron); border-color: var(--saff
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
   .reveal { opacity: 1; transform: none; }
 }
+.footer-bottom a { transition: color 0.2s; }
+.footer-bottom a:hover { color: var(--saffron); }

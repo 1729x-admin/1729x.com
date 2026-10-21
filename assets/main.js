@@ -86,18 +86,41 @@
     window.addEventListener("resize", light);
   }
 
-  /* subscribe (front-end only until a newsletter provider is connected) */
+  /* subscribe: posts to Mailchimp's JSONP endpoint so the page never leaves the site */
+  let mcSeq = 0;
   $$(".sub-form").forEach(form => {
     form.addEventListener("submit", e => {
       e.preventDefault();
       const note = form.parentElement.querySelector(".sub-note");
-      const email = form.querySelector("input").value.trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (note) { note.textContent = "That address doesn't look right."; note.classList.remove("ok"); }
-        return;
-      }
-      if (note) { note.textContent = "Thank you. The first letter will find you."; note.classList.add("ok"); }
-      form.reset();
+      const btn = form.querySelector("button");
+      const say = (msg, ok) => { if (note) { note.textContent = msg; note.classList.toggle("ok", !!ok); } };
+      const email = form.EMAIL.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say("That address doesn't look right.");
+
+      const cb = `mcCallback${++mcSeq}`;
+      const url = new URL(form.action.replace("/post?", "/post-json?"));
+      new FormData(form).forEach((v, k) => url.searchParams.set(k, v));
+      url.searchParams.set("c", cb);
+
+      const script = document.createElement("script");
+      const done = () => { delete window[cb]; script.remove(); btn.disabled = false; clearTimeout(timer); };
+      const timer = setTimeout(() => { done(); say("Something went wrong. Please try again."); }, 12000);
+      window[cb] = res => {
+        done();
+        if (res.result === "success") {
+          form.reset();
+          return say("Almost there. Check your inbox to confirm.", true);
+        }
+        const msg = String(res.msg || "").replace(/<[^>]*>/g, "").replace(/^\d+\s*-\s*/, "");
+        if (/already subscribed/i.test(msg)) return say("You're already subscribed. Thank you.", true);
+        if (/too many/i.test(msg)) return say("Too many attempts. Please try again later.");
+        say(msg || "Something went wrong. Please try again.");
+      };
+      script.onerror = () => { done(); say("Couldn't reach the server. Please try again."); };
+      script.src = url.toString();
+      btn.disabled = true;
+      say("Subscribing…");
+      document.body.appendChild(script);
     });
   });
 

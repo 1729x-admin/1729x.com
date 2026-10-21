@@ -449,3 +449,35 @@ a.index-item:hover .arrow { background: var(--saffron); border-color: var(--saff
 }
 .footer-bottom a { transition: color 0.2s; }
 .footer-bottom a:hover { color: var(--saffron); }
+
+/* ---------- ramanujans form ---------- */
+.apply-form { max-width: 860px; }
+.apply-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 22px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--paper); }
+.field .req { color: var(--saffron); }
+.field .opt { font-family: var(--mono); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-faint); margin-left: 6px; }
+.field input, .field textarea {
+  width: 100%;
+  background: var(--ink);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--paper);
+  font: inherit; font-size: 16px;
+  outline: 0;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.field textarea { resize: vertical; min-height: 140px; line-height: 1.55; }
+.field input::placeholder, .field textarea::placeholder { color: var(--paper-faint); }
+.field input:focus, .field textarea:focus { border-color: rgba(255, 106, 26, 0.6); box-shadow: 0 0 0 5px rgba(255, 106, 26, 0.1); }
+.field small { font-size: 13.5px; color: var(--paper-faint); }
+.field .count { align-self: flex-end; font-family: var(--mono); font-size: 12px; }
+.field .count.near { color: var(--saffron); }
+.apply-foot { margin-top: 30px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.apply-foot .sub-note { margin: 0; flex: 1; min-width: 200px; }
+.apply-foot .btn:disabled { opacity: 0.6; cursor: wait; }
+.apply-alt { max-width: 860px; margin: 22px 0 0; color: var(--paper-dim); font-size: 15.5px; }
+.apply-alt a { color: var(--saffron); }
+@media (max-width: 640px) { .apply-grid { grid-template-columns: 1fr; } }

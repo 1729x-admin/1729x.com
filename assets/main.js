@@ -88,10 +88,11 @@
 
   /* subscribe: posts to Mailchimp's JSONP endpoint so the page never leaves the site */
   let mcSeq = 0;
-  $$(".sub-form").forEach(form => {
+  $$(".sub-form, .apply-form").forEach(form => {
+    const isApply = form.classList.contains("apply-form");
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const note = form.parentElement.querySelector(".sub-note");
+      const note = form.querySelector(".sub-note") || form.parentElement.querySelector(".sub-note");
       const btn = form.querySelector("button");
       const say = (msg, ok) => { if (note) { note.textContent = msg; note.classList.toggle("ok", !!ok); } };
       const email = form.EMAIL.value.trim();
@@ -109,19 +110,32 @@
         done();
         if (res.result === "success") {
           form.reset();
-          return say("Almost there. Check your inbox to confirm.", true);
+          return say(form.dataset.success || "Almost there. Check your inbox to confirm.", true);
         }
         const msg = String(res.msg || "").replace(/<[^>]*>/g, "").replace(/^\d+\s*-\s*/, "");
-        if (/already subscribed/i.test(msg)) return say("You're already subscribed. Thank you.", true);
+        if (/already subscribed/i.test(msg)) return say(isApply
+          ? "This email is already on our list, so your answers weren't saved. Please write to hello@1729x.com instead."
+          : "You're already subscribed. Thank you.", !isApply);
         if (/too many/i.test(msg)) return say("Too many attempts. Please try again later.");
         say(msg || "Something went wrong. Please try again.");
       };
       script.onerror = () => { done(); say("Couldn't reach the server. Please try again."); };
       script.src = url.toString();
       btn.disabled = true;
-      say("Subscribing…");
+      say(isApply ? "Sending…" : "Subscribing…");
       document.body.appendChild(script);
     });
+  });
+
+  /* character counters for length-limited fields */
+  $$(".count[data-for]").forEach(c => {
+    const el = document.getElementById(c.dataset.for);
+    if (!el) return;
+    const max = el.maxLength;
+    const upd = () => { c.textContent = `${el.value.length} / ${max}`; c.classList.toggle("near", el.value.length > max * 0.9); };
+    el.addEventListener("input", upd);
+    el.form?.addEventListener("reset", () => setTimeout(upd));
+    upd();
   });
 
   /* blog filters */
